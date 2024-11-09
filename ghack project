@@ -1,0 +1,78 @@
+import random
+import time
+import json
+
+def generate_heart_rate():
+    # Simulating heart rate between 60-100 bpm
+    return random.randint(60, 100)
+
+def generate_heart_rate_variability():
+    # Simulating HRV (higher HRV is a sign of relaxation)
+    return random.randint(30, 80)  # HRV range between 30-80ms
+
+def generate_sleep_pattern():
+    # Simulate a sleep quality score out of 100
+    return random.randint(50, 100)
+
+def generate_data():
+    return {
+        "heart_rate": generate_heart_rate(),
+        "heart_rate_variability": generate_heart_rate_variability(),
+        "sleep_pattern": generate_sleep_pattern(),
+        "timestamp": int(time.time())
+    }
+
+# Simulate generating data every 5 seconds
+while True:
+    data = generate_data()
+    print(json.dumps(data, indent=4))  # Print data as JSON for clarity
+    time.sleep(5)
+
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+
+# Example training data (simulated)
+# Columns: [heart_rate, hrv, sleep_pattern], Label: [0=calm, 1=anxious]
+X_train = np.array([
+    [70, 60, 80],  # Calm example
+    [80, 45, 60],  # Anxious example
+    [90, 50, 85],  # Calm example
+    [75, 40, 50],  # Anxious example
+])
+y_train = np.array([0, 1, 0, 1])  # Labels for calm or anxious
+
+# Train the classifier
+clf = RandomForestClassifier(n_estimators=100)
+clf.fit(X_train, y_train)
+
+# Example new data to predict (simulated values)
+new_data = np.array([[85, 55, 65]])  # New data point
+
+# Predict the mental state (0 = calm, 1 = anxious)
+prediction = clf.predict(new_data)
+
+if prediction == 0:
+    print("Mental state: Calm")
+else:
+    print("Mental state: Anxious")
+
+from flask import Flask, jsonify, request
+import random
+
+app = Flask(__name__)
+
+# Simulate storing data in memory (you could use a database like SQLite or Firebase)
+data_store = []
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    return jsonify(data_store)
+
+@app.route('/api/data', methods=['POST'])
+def add_data():
+    new_data = request.json
+    data_store.append(new_data)
+    return jsonify({"message": "Data received", "data": new_data}), 201
+
+if __name__ == '__main__':
+    app.run(debug=True)
